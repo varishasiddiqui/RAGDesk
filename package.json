@@ -1,0 +1,24 @@
+{
+  "name": "ragdesk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RAGDesk — Document reading agent with citations. RAG pipeline (PDF → chunk → embed → vector search → LLM answer) deployed fully on Vercel free tier.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@google/genai": "^1.5.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "unpdf": "^0.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  }
+}

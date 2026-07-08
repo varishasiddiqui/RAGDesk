@@ -1,0 +1,146 @@
+/* Design tokens — exact copy of the original frontend/src/styles/tokens.css */
+:root {
+  --color-ink: #1b2333;
+  --color-ink-soft: #4b5468;
+  --color-paper: #e9ece6;
+  --color-surface: #faf9f4;
+  --color-surface-raised: #ffffff;
+  --color-border: #d8dbd0;
+  --color-gold: #c69433;
+  --color-gold-soft: #eddcae;
+  --color-teal: #2e6b67;
+  --color-teal-soft: #dbe8e6;
+  --color-brick: #b23b2e;
+  --color-brick-soft: #f3ded9;
+
+  --font-display: "Fraunces", "Iowan Old Style", ui-serif, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: 1.875rem;
+  --fs-2xl: 2.5rem;
+  --fs-3xl: 3.25rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --shadow-card: 0 1px 2px rgba(27, 35, 51, 0.06), 0 12px 24px -12px rgba(27, 35, 51, 0.18);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}
+
+/* Global resets — exact copy of the original frontend/src/index.css */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--color-ink);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-teal);
+  text-decoration-color: color-mix(in srgb, var(--color-teal) 45%, transparent);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+button, input {
+  font-family: inherit;
+}
+
+/* Visible keyboard focus everywhere, no exceptions */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Signature element: a highlighter-style mark behind key words,
+   echoing the amber highlight RAGDesk draws over a cited passage. */
+.mark {
+  position: relative;
+  white-space: nowrap;
+}
+
+.mark::before {
+  content: "";
+  position: absolute;
+  left: -0.1em;
+  right: -0.1em;
+  bottom: 0.05em;
+  height: 0.34em;
+  background: var(--color-gold-soft);
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.container {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
