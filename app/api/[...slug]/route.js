@@ -1,22 +1,3 @@
-/**
- * Catch-all API route — handles EVERY endpoint under /api/* in ONE
- * serverless function so they all share the in-memory vector store.
- *
- * This is intentional: Vercel treats each route file as a separate
- * serverless function with its own memory. If we split /api/upload,
- * /api/ask, /api/stats into separate files, the store wouldn't be
- * shared and the app would break. Putting everything behind a single
- * catch-all keeps one warm function instance (and one shared store)
- * for all API calls.
- *
- * Endpoints (matching the original FastAPI surface):
- *   GET  /api/health        — health check
- *   POST /api/upload        — receive a PDF, extract → chunk → embed → store
- *   GET  /api/stats         — vector store stats
- *   POST /api/retrieve      — embed a query, return top-k chunks (debug)
- *   POST /api/ask           — embed query → search → Gemini answer w/ citations
- */
-
 import { NextResponse } from "next/server";
 import { extractTextByPage } from "../../../lib/pdf.js";
 import { chunkPages } from "../../../lib/chunking.js";
@@ -28,15 +9,9 @@ import {
 } from "../../../lib/vector-store.js";
 import { generateAnswer } from "../../../lib/llm.js";
 
-// Always run on the Node.js runtime (we need `unpdf` + file parsing).
 export const runtime = "nodejs";
-// Let large PDFs run a bit longer (Vercel hobby allows up to 60s on Pro,
-// 10s default on free — we set maxDuration in vercel.json too).
-export const maxDuration = 60;
 
-// ----------------------------------------------------------------------------
-// Router
-// ----------------------------------------------------------------------------
+export const maxDuration = 60;
 
 export async function GET(request, { params }) {
   const path = (params.slug || []).join("/");
@@ -64,25 +39,15 @@ export async function POST(request, { params }) {
   }
 }
 
-// ----------------------------------------------------------------------------
-// Handlers
-// ----------------------------------------------------------------------------
 
-/**
- * Turn a thrown error into a clean, user-facing message.
- * Gemini SDK errors often arrive as { message: '{"error":{...}}' }
- * (a JSON string wrapped in a string), so we unwrap recursively.
- */
 function cleanErrorMessage(err) {
   let msg = err?.message || String(err);
 
-  // The @google/genai SDK sometimes wraps the API response as a
-  // JSON string inside `err.message`. Try to parse it out.
   try {
     const parsed = JSON.parse(msg);
     if (parsed?.error?.message) return parsed.error.message;
   } catch {
-    // not JSON — fall through
+    
   }
 
   return msg;
@@ -98,19 +63,11 @@ function healthCheck() {
   });
 }
 
-/** GET /api/stats — how many chunks are in the store right now. */
+
 function stats() {
   return json(getCollectionStats());
 }
 
-/**
- * POST /api/upload
- * Body: multipart/form-data with a "files" field (one or more PDFs).
- *
- * Replaces the original two-step flow (/upload then /store/{filename}).
- * On Vercel there's no persistent disk, so we extract → chunk → embed →
- * store in one shot. The filename is preserved for citations.
- */
 async function upload(request) {
   try {
     const formData = await request.formData();
@@ -173,13 +130,6 @@ async function upload(request) {
   }
 }
 
-/**
- * POST /api/retrieve
- * Body: { question: string, top_k?: number = 5 }
- *
- * Returns the raw top-k matching chunks without an LLM answer — useful
- * for debugging the retrieval step.
- */
 async function retrieve(request) {
   try {
     const body = await request.json();
@@ -204,13 +154,6 @@ async function retrieve(request) {
   }
 }
 
-/**
- * POST /api/ask
- * Body: { question: string, top_k?: number = 5 }
- *
- * The full RAG flow: embed the query → search the store → feed matches
- * to Gemini with the citation prompt → return the answer + source list.
- */
 async function ask(request) {
   try {
     const body = await request.json();
@@ -248,10 +191,6 @@ async function ask(request) {
     return json({ detail: cleanErrorMessage(err) }, 500);
   }
 }
-
-// ----------------------------------------------------------------------------
-// Helpers
-// ----------------------------------------------------------------------------
 
 function json(data, status = 200) {
   return NextResponse.json(data, { status });
