@@ -20,7 +20,13 @@ Built to demonstrate **LLM + Vector Search + RAG** skills, deployed fully on **V
  
 ### Upload Document
 ![Upload](assets/documentUploaded.png)
- 
+
+### Ask Query
+![Upload](assets/ask-question.png)
+
+### AI Response
+![Upload](assets/answer.png)
+
 ---
  
 ## How It Works
