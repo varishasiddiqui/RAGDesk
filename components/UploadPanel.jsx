@@ -15,6 +15,11 @@ export default function UploadPanel({ setReadyDocs }) {
     setDocs((prev) => prev.map((d) => (d.name === name ? { ...d, ...patch } : d)));
   }
 
+  // Vercel's free-tier serverless functions reject request bodies over 4.5MB
+  // before our code even runs. Stay a little under that to leave room for
+  // multipart/form-data overhead.
+  const MAX_UPLOAD_MB = 4;
+
   async function processFile(file) {
     const name = file.name;
 
@@ -22,6 +27,18 @@ export default function UploadPanel({ setReadyDocs }) {
       setDocs((prev) => [
         ...prev,
         { name, status: "error", error: "Only PDF files are supported." },
+      ]);
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      setDocs((prev) => [
+        ...prev,
+        {
+          name,
+          status: "error",
+          error: `This file is too large. Please upload a PDF smaller than ${MAX_UPLOAD_MB}MB — this demo is deployed on Vercel's free tier, which limits request size.`,
+        },
       ]);
       return;
     }

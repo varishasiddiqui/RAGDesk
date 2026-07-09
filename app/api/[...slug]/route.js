@@ -68,8 +68,24 @@ function stats() {
   return json(getCollectionStats());
 }
 
+// Vercel's free-tier serverless functions reject bodies over ~4.5MB before
+// our code runs, so check content-length upfront and fail with a clear message.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
 async function upload(request) {
   try {
+    const contentLength = Number(request.headers.get("content-length") || 0);
+    if (contentLength > MAX_UPLOAD_BYTES) {
+      return json(
+        {
+          detail: `File too large (${(contentLength / 1024 / 1024).toFixed(
+            1
+          )}MB). Please upload a PDF smaller than 4MB — this app is deployed on Vercel's free tier, which limits request size.`,
+        },
+        413
+      );
+    }
+
     const formData = await request.formData();
     const files = formData.getAll("files");
 
@@ -126,7 +142,22 @@ async function upload(request) {
     });
   } catch (err) {
     console.error("[/api/upload] error:", err);
-    return json({ detail: cleanErrorMessage(err) }, 500);
+
+    const msg = cleanErrorMessage(err);
+    const looksLikeBodyTooLarge =
+      /body|size|limit|exceeded|content-length|multipart/i.test(msg);
+
+    if (looksLikeBodyTooLarge) {
+      return json(
+        {
+          detail:
+            "That file couldn't be read — it's likely too large. Please upload a PDF smaller than 4MB; this app is deployed on Vercel's free tier, which limits request size.",
+        },
+        413
+      );
+    }
+
+    return json({ detail: msg }, 500);
   }
 }
 
